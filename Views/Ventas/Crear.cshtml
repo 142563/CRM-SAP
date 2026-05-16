@@ -1,0 +1,138 @@
+@{
+    ViewData["Title"] = "Nueva Venta";
+    var clientes = ViewBag.Clientes as IEnumerable<CRM_ERP_UMG.Models.Cliente> ?? Enumerable.Empty<CRM_ERP_UMG.Models.Cliente>();
+    var productos = ViewBag.Productos as IEnumerable<CRM_ERP_UMG.Models.Producto> ?? Enumerable.Empty<CRM_ERP_UMG.Models.Producto>();
+}
+
+<div class="d-flex align-items-center mb-4 gap-2">
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i></a>
+    <h2 class="mb-0">Nueva Venta</h2>
+</div>
+
+<form asp-action="Crear" method="post" id="form-venta">
+    <div class="row g-4">
+        <div class="col-md-8">
+            <div class="card shadow-sm mb-3">
+                <div class="card-header fw-semibold">Datos del Cliente</div>
+                <div class="card-body">
+                    <div class="row g-3">
+                        <div class="col-md-8">
+                            <label class="form-label">Cliente</label>
+                            <select name="clienteId" class="form-select" required>
+                                @foreach (var c in clientes)
+                                {
+                                    <option value="@c.Id">@c.Nit — @c.Nombre</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="col-md-4">
+                            <label class="form-label">Descuento (Q)</label>
+                            <input name="descuento" type="number" step="0.01" min="0" value="0" class="form-control" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center fw-semibold">
+                    Detalle de Productos
+                    <button type="button" class="btn btn-outline-dark btn-sm" onclick="agregarFila()">
+                        <i class="bi bi-plus me-1"></i>Agregar
+                    </button>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-sm mb-0" id="tabla-detalle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Producto</th><th>Cant.</th><th>Precio Unit.</th><th>Subtotal</th><th></th>
+                                </tr>
+                            </thead>
+                            <tbody id="detalle-body"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm">
+                <div class="card-header fw-semibold">Resumen</div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Subtotal:</span><span id="res-subtotal">Q 0.00</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>IVA (12%):</span><span id="res-iva">Q 0.00</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span>Descuento:</span><span id="res-descuento">Q 0.00</span>
+                    </div>
+                    <hr />
+                    <div class="d-flex justify-content-between fw-bold fs-5">
+                        <span>TOTAL:</span><span id="res-total">Q 0.00</span>
+                    </div>
+                    <button type="submit" class="btn btn-success w-100 mt-3">
+                        <i class="bi bi-check-circle me-1"></i>Emitir Venta
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+
+@section Scripts {
+<script>
+const productosData = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(
+    productos.Select(p => new { p.Id, p.Nombre, precio = p.PrecioVenta })));
+
+function agregarFila() {
+    const tbody = document.getElementById('detalle-body');
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+        <td>
+            <select name="productoId" class="form-select form-select-sm" onchange="actualizarPrecio(this)" required>
+                ${productosData.map(p => `<option value="${p.Id}" data-precio="${p.precio}">${p.nombre}</option>`).join('')}
+            </select>
+        </td>
+        <td><input name="cantidad" type="number" step="1" min="1" value="1" class="form-control form-control-sm" style="width:80px" onchange="calcularTotal()" required /></td>
+        <td><input name="precioUnitario" type="number" step="0.01" min="0" class="form-control form-control-sm" style="width:100px" onchange="calcularTotal()" required /></td>
+        <td class="subtotal-cell align-middle">Q 0.00</td>
+        <td><button type="button" class="btn btn-outline-danger btn-sm" onclick="this.closest('tr').remove(); calcularTotal()"><i class="bi bi-x"></i></button></td>`;
+    tbody.appendChild(tr);
+    const sel = tr.querySelector('select[name="productoId"]');
+    actualizarPrecio(sel);
+}
+
+function actualizarPrecio(sel) {
+    const opt = sel.options[sel.selectedIndex];
+    const precio = opt.getAttribute('data-precio');
+    const row = sel.closest('tr');
+    row.querySelector('input[name="precioUnitario"]').value = precio;
+    calcularTotal();
+}
+
+function calcularTotal() {
+    const rows = document.querySelectorAll('#detalle-body tr');
+    let subtotal = 0;
+    rows.forEach(row => {
+        const qty = parseFloat(row.querySelector('[name="cantidad"]')?.value || 0);
+        const price = parseFloat(row.querySelector('[name="precioUnitario"]')?.value || 0);
+        const sub = qty * price;
+        subtotal += sub;
+        const cell = row.querySelector('.subtotal-cell');
+        if (cell) cell.textContent = 'Q ' + sub.toFixed(2);
+    });
+    const descuento = parseFloat(document.querySelector('[name="descuento"]')?.value || 0);
+    const iva = subtotal * 0.12;
+    const total = subtotal + iva - descuento;
+    document.getElementById('res-subtotal').textContent = 'Q ' + subtotal.toFixed(2);
+    document.getElementById('res-iva').textContent = 'Q ' + iva.toFixed(2);
+    document.getElementById('res-descuento').textContent = 'Q ' + descuento.toFixed(2);
+    document.getElementById('res-total').textContent = 'Q ' + total.toFixed(2);
+}
+
+document.querySelector('[name="descuento"]')?.addEventListener('input', calcularTotal);
+agregarFila();
+</script>
+}

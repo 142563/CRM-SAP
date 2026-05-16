@@ -1,0 +1,53 @@
+@model IEnumerable<CRM_ERP_UMG.Models.OperacionDinamica>
+@{
+    ViewData["Title"] = "Operaciones";
+    var modulo = ViewBag.Modulo as CRM_ERP_UMG.Models.ModuloDinamico;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex align-items-center gap-2">
+        <a asp-controller="Modulos" asp-action="Detalle" asp-route-id="@modulo?.Id" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i></a>
+        <h2 class="mb-0">Operaciones — @modulo?.NombreModulo</h2>
+    </div>
+    @if (User.IsInRole("Admin") || User.IsInRole("Editor"))
+    {
+        <a asp-action="Crear" asp-route-moduloId="@modulo?.Id" class="btn btn-dark">
+            <i class="bi bi-plus-lg me-1"></i>Nueva Operación
+        </a>
+    }
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">No hay operaciones configuradas.</div>
+}
+else
+{
+    <div class="row g-3">
+        @foreach (var op in Model)
+        {
+            <div class="col-md-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <h6 class="card-title"><i class="bi bi-calculator me-2"></i>@op.NombreOperacion</h6>
+                        <p class="text-muted small">@op.ColumnasVisibles.Count columnas, @op.Formulas.Count fórmulas</p>
+                        <div class="d-flex gap-2">
+                            <a asp-action="Resultado" asp-route-id="@op.Id" class="btn btn-outline-success btn-sm">
+                                <i class="bi bi-play me-1"></i>Ejecutar
+                            </a>
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <form asp-action="Eliminar" asp-route-id="@op.Id" method="post" class="d-inline"
+                                      onsubmit="return confirm('¿Eliminar operación?')">
+                                    <button type="submit" class="btn btn-outline-danger btn-sm">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

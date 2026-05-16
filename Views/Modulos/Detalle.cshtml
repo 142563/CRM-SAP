@@ -1,0 +1,117 @@
+@model CRM_ERP_UMG.Models.ModuloDinamico
+@{ ViewData["Title"] = "Configurar Módulo"; }
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex align-items-center gap-2">
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i></a>
+        <h2 class="mb-0">@Model.NombreModulo</h2>
+    </div>
+    @if (User.IsInRole("Admin"))
+    {
+        <form asp-action="EliminarModulo" asp-route-id="@Model.Id" method="post"
+              onsubmit="return confirm('¿Eliminar este módulo y todos sus datos?')">
+            <button type="submit" class="btn btn-outline-danger btn-sm">
+                <i class="bi bi-trash me-1"></i>Eliminar Módulo
+            </button>
+        </form>
+    }
+</div>
+
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm">
+            <div class="card-header fw-semibold">
+                <i class="bi bi-list-columns me-2"></i>Campos del Esquema
+            </div>
+            <div class="card-body">
+                @if (Model.EsquemaCampos.Any())
+                {
+                    <table class="table table-sm table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Clave</th><th>Etiqueta</th><th>Tipo</th><th>Req.</th>
+                                @if (User.IsInRole("Admin") || User.IsInRole("Editor"))
+                                {
+                                    <th></th>
+                                }
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var campo in Model.EsquemaCampos)
+                            {
+                                <tr>
+                                    <td><code>@campo.Key</code></td>
+                                    <td>@campo.Value.Etiqueta</td>
+                                    <td><span class="badge bg-secondary">@campo.Value.TipoCampo</span></td>
+                                    <td>@(campo.Value.Requerido ? "✓" : "")</td>
+                                    @if (User.IsInRole("Admin") || User.IsInRole("Editor"))
+                                    {
+                                        <td>
+                                            <form asp-action="EliminarCampo" method="post" class="d-inline"
+                                                  onsubmit="return confirm('¿Eliminar campo?')">
+                                                <input type="hidden" name="id" value="@Model.Id" />
+                                                <input type="hidden" name="clave" value="@campo.Key" />
+                                                <button type="submit" class="btn btn-outline-danger btn-sm py-0">
+                                                    <i class="bi bi-x"></i>
+                                                </button>
+                                            </form>
+                                        </td>
+                                    }
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                }
+                else
+                {
+                    <p class="text-muted small">No hay campos definidos.</p>
+                }
+            </div>
+        </div>
+    </div>
+
+    @if (User.IsInRole("Admin") || User.IsInRole("Editor"))
+    {
+        <div class="col-md-6">
+            <div class="card shadow-sm">
+                <div class="card-header fw-semibold">
+                    <i class="bi bi-plus-circle me-2"></i>Agregar Campo
+                </div>
+                <div class="card-body">
+                    <form asp-action="AgregarCampo" asp-route-id="@Model.Id" method="post">
+                        <div class="mb-2">
+                            <label class="form-label small">Etiqueta</label>
+                            <input name="etiqueta" class="form-control form-control-sm" placeholder="Ej: Precio Unitario" required />
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label small">Tipo</label>
+                            <select name="tipoCampo" class="form-select form-select-sm">
+                                <option value="text">Texto</option>
+                                <option value="number">Número</option>
+                                <option value="date">Fecha</option>
+                                <option value="email">Email</option>
+                                <option value="textarea">Área de texto</option>
+                            </select>
+                        </div>
+                        <div class="mb-3 form-check">
+                            <input type="checkbox" name="requerido" value="true" class="form-check-input" id="req" />
+                            <label class="form-check-label small" for="req">Requerido</label>
+                        </div>
+                        <button type="submit" class="btn btn-dark btn-sm">
+                            <i class="bi bi-plus me-1"></i>Agregar
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<div class="mt-4 d-flex gap-2">
+    <a asp-controller="Registros" asp-action="Index" asp-route-moduloId="@Model.Id" class="btn btn-outline-primary">
+        <i class="bi bi-table me-1"></i>Ver Registros (@Model.Registros.Count)
+    </a>
+    <a asp-controller="Operaciones" asp-action="Index" asp-route-moduloId="@Model.Id" class="btn btn-outline-success">
+        <i class="bi bi-calculator me-1"></i>Ver Operaciones (@Model.Operaciones.Count)
+    </a>
+</div>

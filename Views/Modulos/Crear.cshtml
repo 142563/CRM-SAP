@@ -1,0 +1,27 @@
+@model CRM_ERP_UMG.Models.ModuloDinamico
+@{ ViewData["Title"] = "Nuevo Módulo"; }
+
+<div class="d-flex align-items-center mb-4 gap-2">
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i></a>
+    <h2 class="mb-0">Nuevo Módulo</h2>
+</div>
+
+<div class="card shadow-sm" style="max-width:600px">
+    <div class="card-body">
+        <form asp-action="Crear" method="post">
+            <div class="mb-3">
+                <label asp-for="NombreModulo" class="form-label">Nombre del Módulo</label>
+                <input asp-for="NombreModulo" class="form-control" placeholder="Ej: Inventario, Proveedores..." />
+                <span asp-validation-for="NombreModulo" class="text-danger small"></span>
+            </div>
+            <div class="mb-3">
+                <label asp-for="Descripcion" class="form-label">Descripción</label>
+                <textarea asp-for="Descripcion" class="form-control" rows="3"></textarea>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-dark"><i class="bi bi-check-lg me-1"></i>Crear</button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>

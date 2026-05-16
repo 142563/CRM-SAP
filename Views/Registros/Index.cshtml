@@ -1,0 +1,76 @@
+@model IEnumerable<CRM_ERP_UMG.Models.RegistroDinamico>
+@{
+    ViewData["Title"] = "Registros";
+    var modulo = ViewBag.Modulo as CRM_ERP_UMG.Models.ModuloDinamico;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <div class="d-flex align-items-center gap-2">
+        <a asp-controller="Modulos" asp-action="Index" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i></a>
+        <h2 class="mb-0">Registros — @modulo?.NombreModulo</h2>
+    </div>
+    @if (User.IsInRole("Admin") || User.IsInRole("Editor") || User.IsInRole("Vendedor"))
+    {
+        <a asp-action="Crear" asp-route-moduloId="@modulo?.Id" class="btn btn-dark">
+            <i class="bi bi-plus-lg me-1"></i>Nuevo Registro
+        </a>
+    }
+</div>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">No hay registros en este módulo.</div>
+}
+else
+{
+    <div class="card shadow-sm">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>#</th>
+                        @foreach (var campo in modulo?.EsquemaCampos ?? new Dictionary<string, CRM_ERP_UMG.Models.CampoDinamico>())
+                        {
+                            <th>@campo.Value.Etiqueta</th>
+                        }
+                        <th>Fecha</th>
+                        @if (User.IsInRole("Admin") || User.IsInRole("Editor"))
+                        {
+                            <th>Acciones</th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var reg in Model)
+                    {
+                        <tr>
+                            <td>@reg.Id</td>
+                            @foreach (var campo in modulo?.EsquemaCampos ?? new Dictionary<string, CRM_ERP_UMG.Models.CampoDinamico>())
+                            {
+                                <td>@(reg.Datos.TryGetValue(campo.Key, out var v) ? v : "")</td>
+                            }
+                            <td class="text-muted small">@reg.FechaCreacion.ToString("dd/MM/yyyy HH:mm")</td>
+                            @if (User.IsInRole("Admin") || User.IsInRole("Editor"))
+                            {
+                                <td>
+                                    <a asp-action="Editar" asp-route-id="@reg.Id" class="btn btn-outline-primary btn-sm">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    @if (User.IsInRole("Admin"))
+                                    {
+                                        <form asp-action="Eliminar" asp-route-id="@reg.Id" method="post" class="d-inline"
+                                              onsubmit="return confirm('¿Eliminar registro?')">
+                                            <button type="submit" class="btn btn-outline-danger btn-sm">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    }
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

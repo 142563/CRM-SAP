@@ -1,0 +1,74 @@
+@model CRM_ERP_UMG.Models.Venta
+@{ ViewData["Title"] = "Detalle de Venta"; }
+
+<div class="d-flex align-items-center mb-4 gap-2">
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i></a>
+    <h2 class="mb-0">Venta @Model.NumeroVenta</h2>
+    <span class="badge bg-success ms-2">@Model.Estado</span>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-8">
+        <div class="card shadow-sm mb-3">
+            <div class="card-header fw-semibold">Información General</div>
+            <div class="card-body">
+                <div class="row g-2">
+                    <div class="col-md-6">
+                        <strong>Cliente:</strong> @Model.Cliente?.Nombre<br />
+                        <strong>NIT:</strong> @Model.Cliente?.Nit
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Vendedor:</strong> @Model.Usuario?.NombreCompleto<br />
+                        <strong>Fecha:</strong> @Model.FechaVenta.ToString("dd/MM/yyyy HH:mm")
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm">
+            <div class="card-header fw-semibold">Detalle de Productos</div>
+            <div class="table-responsive">
+                <table class="table table-sm mb-0">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Producto</th><th class="text-end">Cant.</th>
+                            <th class="text-end">Precio Unit.</th><th class="text-end">Subtotal</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var d in Model.Detalles)
+                        {
+                            <tr>
+                                <td>@d.Producto?.Nombre</td>
+                                <td class="text-end">@d.Cantidad.ToString("F0")</td>
+                                <td class="text-end">Q @d.PrecioUnitario.ToString("F2")</td>
+                                <td class="text-end">Q @d.Subtotal.ToString("F2")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-header fw-semibold">Resumen Financiero</div>
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-2">
+                    <span>Subtotal:</span><span>Q @Model.Subtotal.ToString("F2")</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2">
+                    <span>IVA (12%):</span><span>Q @Model.Impuesto.ToString("F2")</span>
+                </div>
+                <div class="d-flex justify-content-between mb-2 text-danger">
+                    <span>Descuento:</span><span>- Q @Model.Descuento.ToString("F2")</span>
+                </div>
+                <hr />
+                <div class="d-flex justify-content-between fw-bold fs-5">
+                    <span>TOTAL:</span><span>Q @Model.Total.ToString("F2")</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

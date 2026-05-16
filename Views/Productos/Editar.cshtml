@@ -1,0 +1,43 @@
+@model CRM_ERP_UMG.Models.Producto
+@{ ViewData["Title"] = "Editar Producto"; }
+
+<div class="d-flex align-items-center mb-4 gap-2">
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i></a>
+    <h2 class="mb-0">Editar Producto</h2>
+</div>
+
+<div class="card shadow-sm" style="max-width:500px">
+    <div class="card-body">
+        <form asp-action="Editar" asp-route-id="@Model.Id" method="post">
+            <input type="hidden" asp-for="Id" />
+            <div class="mb-3">
+                <label asp-for="Codigo" class="form-label">Código</label>
+                <input asp-for="Codigo" class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label asp-for="Nombre" class="form-label">Nombre</label>
+                <input asp-for="Nombre" class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label asp-for="Descripcion" class="form-label">Descripción</label>
+                <input asp-for="Descripcion" class="form-control" />
+            </div>
+            <div class="mb-3">
+                <label asp-for="PrecioVenta" class="form-label">Precio de Venta (Q)</label>
+                <input asp-for="PrecioVenta" class="form-control" type="number" step="0.01" min="0" />
+            </div>
+            <div class="mb-3">
+                <label asp-for="Existencia" class="form-label">Existencia</label>
+                <input asp-for="Existencia" class="form-control" type="number" step="1" min="0" />
+            </div>
+            <div class="mb-3 form-check">
+                <input asp-for="Activo" class="form-check-input" type="checkbox" />
+                <label asp-for="Activo" class="form-check-label">Activo</label>
+            </div>
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-dark"><i class="bi bi-check-lg me-1"></i>Actualizar</button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>

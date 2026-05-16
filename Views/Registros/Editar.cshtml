@@ -1,0 +1,43 @@
+@model CRM_ERP_UMG.Models.RegistroDinamico
+@{
+    ViewData["Title"] = "Editar Registro";
+    var modulo = ViewBag.Modulo as CRM_ERP_UMG.Models.ModuloDinamico;
+}
+
+<div class="d-flex align-items-center mb-4 gap-2">
+    <a asp-action="Index" asp-route-moduloId="@modulo?.Id" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i></a>
+    <h2 class="mb-0">Editar Registro #@Model.Id</h2>
+</div>
+
+<div class="card shadow-sm" style="max-width:600px">
+    <div class="card-body">
+        <form asp-action="Editar" asp-route-id="@Model.Id" method="post">
+            @foreach (var campo in modulo?.EsquemaCampos ?? new Dictionary<string, CRM_ERP_UMG.Models.CampoDinamico>())
+            {
+                <div class="mb-3">
+                    <label class="form-label">
+                        @campo.Value.Etiqueta
+                        @if (campo.Value.Requerido) { <span class="text-danger">*</span> }
+                    </label>
+                    @{
+                        var valor = Model.Datos.TryGetValue(campo.Key, out var v) ? v : "";
+                    }
+                    @if (campo.Value.TipoCampo == "textarea")
+                    {
+                        <textarea name="@campo.Key" class="form-control" rows="3"
+                                  @(campo.Value.Requerido ? "required" : "")>@valor</textarea>
+                    }
+                    else
+                    {
+                        <input type="@campo.Value.TipoCampo" name="@campo.Key" class="form-control"
+                               value="@valor" @(campo.Value.Requerido ? "required" : "") />
+                    }
+                </div>
+            }
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-dark"><i class="bi bi-check-lg me-1"></i>Actualizar</button>
+                <a asp-action="Index" asp-route-moduloId="@modulo?.Id" class="btn btn-outline-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>

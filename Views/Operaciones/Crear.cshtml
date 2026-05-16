@@ -1,0 +1,90 @@
+@{
+    ViewData["Title"] = "Nueva Operación";
+    var modulo = ViewBag.Modulo as CRM_ERP_UMG.Models.ModuloDinamico;
+}
+
+<div class="d-flex align-items-center mb-4 gap-2">
+    <a asp-action="Index" asp-route-moduloId="@modulo?.Id" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-left"></i></a>
+    <h2 class="mb-0">Nueva Operación — @modulo?.NombreModulo</h2>
+</div>
+
+<div class="card shadow-sm" style="max-width:700px">
+    <div class="card-body">
+        <form asp-action="Crear" asp-route-moduloId="@modulo?.Id" method="post">
+            <div class="mb-3">
+                <label class="form-label">Nombre de la Operación</label>
+                <input name="nombreOperacion" class="form-control" placeholder="Ej: Total por Producto" required />
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Columnas Visibles</label>
+                <div class="d-flex flex-wrap gap-2">
+                    @foreach (var campo in modulo?.EsquemaCampos ?? new Dictionary<string, CRM_ERP_UMG.Models.CampoDinamico>())
+                    {
+                        <div class="form-check">
+                            <input type="checkbox" name="columnasVisibles" value="@campo.Key"
+                                   class="form-check-input" id="col_@campo.Key" />
+                            <label class="form-check-label" for="col_@campo.Key">@campo.Value.Etiqueta</label>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Fórmulas</label>
+                <div id="formulas-container">
+                    <div class="row g-2 mb-2 formula-row">
+                        <div class="col-md-4">
+                            <input name="nombreResultado" class="form-control form-control-sm" placeholder="Nombre resultado" />
+                        </div>
+                        <div class="col-md-7">
+                            <input name="expresion" class="form-control form-control-sm"
+                                   placeholder="Ej: precio * cantidad" />
+                        </div>
+                        <div class="col-md-1">
+                            <button type="button" class="btn btn-outline-danger btn-sm" onclick="this.closest('.formula-row').remove()">
+                                <i class="bi bi-x"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <button type="button" class="btn btn-outline-secondary btn-sm mt-1" onclick="agregarFormula()">
+                    <i class="bi bi-plus me-1"></i>Agregar Fórmula
+                </button>
+                <div class="mt-1">
+                    <small class="text-muted">Campos disponibles:
+                        @string.Join(", ", modulo?.EsquemaCampos.Keys ?? Enumerable.Empty<string>())
+                    </small>
+                </div>
+            </div>
+
+            <div class="d-flex gap-2">
+                <button type="submit" class="btn btn-dark"><i class="bi bi-check-lg me-1"></i>Crear</button>
+                <a asp-action="Index" asp-route-moduloId="@modulo?.Id" class="btn btn-outline-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+<script>
+function agregarFormula() {
+    const container = document.getElementById('formulas-container');
+    const div = document.createElement('div');
+    div.className = 'row g-2 mb-2 formula-row';
+    div.innerHTML = `
+        <div class="col-md-4">
+            <input name="nombreResultado" class="form-control form-control-sm" placeholder="Nombre resultado" />
+        </div>
+        <div class="col-md-7">
+            <input name="expresion" class="form-control form-control-sm" placeholder="Ej: precio * cantidad" />
+        </div>
+        <div class="col-md-1">
+            <button type="button" class="btn btn-outline-danger btn-sm" onclick="this.closest('.formula-row').remove()">
+                <i class="bi bi-x"></i>
+            </button>
+        </div>`;
+    container.appendChild(div);
+}
+</script>
+}

@@ -1,0 +1,32 @@
+@model CRM_ERP_UMG.Models.LoginVista
+@{ ViewData["Title"] = "Iniciar Sesión"; Layout = "_Layout"; }
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-4">
+        <div class="card shadow">
+            <div class="card-header bg-dark text-white text-center py-3">
+                <h4 class="mb-0"><i class="bi bi-grid-3x3-gap-fill me-2"></i>CRM ERP UMG</h4>
+            </div>
+            <div class="card-body p-4">
+                <h5 class="card-title text-center mb-4">Iniciar Sesión</h5>
+                <form asp-action="Login" method="post">
+                    <input type="hidden" asp-for="ReturnUrl" />
+                    <div asp-validation-summary="All" class="alert alert-danger py-2 small" style="display:@(ViewData.ModelState.ErrorCount > 0 ? "block" : "none")"></div>
+                    <div class="mb-3">
+                        <label asp-for="Email" class="form-label">Correo electrónico</label>
+                        <input asp-for="Email" class="form-control" placeholder="usuario@dominio.com" />
+                        <span asp-validation-for="Email" class="text-danger small"></span>
+                    </div>
+                    <div class="mb-3">
+                        <label asp-for="Password" class="form-label">Contraseña</label>
+                        <input asp-for="Password" class="form-control" type="password" placeholder="••••••••" />
+                        <span asp-validation-for="Password" class="text-danger small"></span>
+                    </div>
+                    <button type="submit" class="btn btn-dark w-100">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Ingresar
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
