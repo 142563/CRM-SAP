@@ -3,7 +3,9 @@
     "allow": [
       "Bash(dotnet new *)",
       "Bash(dotnet restore *)",
-      "Bash(dotnet build *)"
+      "Bash(dotnet build *)",
+      "Bash(git add *)",
+      "Bash(git reset *)"
     ]
   }
 }
